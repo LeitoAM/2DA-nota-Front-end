@@ -116,7 +116,7 @@
                         <span class="fecha-separator">/</span>
                         <input type="text" id="mes" placeholder="MM" maxlength="2">
                         <span class="fecha-separator">/</span>
-                        <input type="text" id="anio" placeholder="yyyy" maxlength="4">
+                        <input type="text" id="año" placeholder="yyyy" maxlength="4">
                     </div>
                     <div id="fechaError" class="error"></div>
                 </div>
@@ -128,7 +128,7 @@
                     <input type="file" id="cv" name="cv" accept=".pdf,.docx">
                     <div id="cvError" class="error"></div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="email">Email*</label>
                     <input type="email" id="email" name="email" required>
@@ -162,7 +162,7 @@
                 
                 <div class="form-group"></div>
             </div>
-            
+
             <div class="button-group">
                 <button type="button" id="cancelarBtn">Cancelar</button>
                 <button type="button" id="guardarBtn">Guardar</button>
@@ -191,29 +191,29 @@
                 suma += parseInt(cuerpo.charAt(i)) * multiplicador;
                 multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
             }
-            
+
             const dvEsperado = 11 - (suma % 11);
             const dvCalculado = dvEsperado === 11 ? '0' : dvEsperado === 10 ? 'k' : dvEsperado.toString();
             
             return dv === dvCalculado;
         }
 
-        function validarFecha(dia, mes, anio) {
-            if (!dia && !mes && !anio) return true;
+        function validarFecha(dia, mes, año) {
+            if (!dia && !mes && !año) return true;
             
-            if (!dia || !mes || !anio) return false;
+            if (!dia || !mes || !año) return false;
             
             const diaNum = parseInt(dia);
             const mesNum = parseInt(mes);
-            const anioNum = parseInt(anio);
+            const añoNum = parseInt(año);
             
             if (isNaN(diaNum)) return false;
             if (isNaN(mesNum)) return false;
-            if (isNaN(anioNum)) return false;
+            if (isNaN(añoNum)) return false;
             
             if (mesNum < 1 || mesNum > 12) return false;
             
-            const ultimoDia = new Date(anioNum, mesNum, 0).getDate();
+            const ultimoDia = new Date(añoNum, mesNum, 0).getDate();
             if (diaNum < 1 || diaNum > ultimoDia) return false;
             
             return true;
@@ -241,11 +241,11 @@
             if (elemento === 'fecha') {
                 const diaInput = document.getElementById('dia');
                 const mesInput = document.getElementById('mes');
-                const anioInput = document.getElementById('anio');
+                const añoInput = document.getElementById('año');
                 
                 if (diaInput) diaInput.classList.add('input-error');
                 if (mesInput) mesInput.classList.add('input-error');
-                if (anioInput) anioInput.classList.add('input-error');
+                if (añoInput) añoInput.classList.add('input-error');
             } else {
                 const inputElement = document.getElementById(elemento);
                 if (inputElement) inputElement.classList.add('input-error');
@@ -258,15 +258,14 @@
                 errorElement.textContent = '';
                 errorElement.style.display = 'none';
             }
-            
             if (elemento === 'fecha') {
                 const diaInput = document.getElementById('dia');
                 const mesInput = document.getElementById('mes');
-                const anioInput = document.getElementById('anio');
+                const añoInput = document.getElementById('año');
                 
                 if (diaInput) diaInput.classList.remove('input-error');
                 if (mesInput) mesInput.classList.remove('input-error');
-                if (anioInput) anioInput.classList.remove('input-error');
+                if (añoInput) añoInput.classList.remove('input-error');
             } else {
                 const inputElement = document.getElementById(elemento);
                 if (inputElement) inputElement.classList.remove('input-error');
@@ -297,9 +296,9 @@
 
             const dia = document.getElementById('dia').value.trim();
             const mes = document.getElementById('mes').value.trim();
-            const anio = document.getElementById('anio').value.trim();
+            const año = document.getElementById('año').value.trim();
             
-            if (!validarFecha(dia, mes, anio)) {
+            if (!validarFecha(dia, mes, año)) {
                 mostrarError('fecha', 'Formato de fecha inválido (dd/MM/yyyy)');
                 valido = false;
             } else {
