@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Registro</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-container {
+            background-color: rgb(209, 209, 209);
+            padding: 80px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #3d3b3b;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc5c5;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .fecha-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .fecha-group input {
+            flex: 1;
+        }
+        .fecha-separator {
+            padding: 0 5px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        #guardarBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #cancelarBtn {
+            background-color: #f44336;
+            color: white;
+        }
+        .error {
+            color: #ff0000;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+        .input-error {
+            border: 2px solid #ff0000 !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>Formulario de Registro</h1>
+    <div class="form-container">
+        <form id="registroForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nombreCompleto">Nombre Completo*</label>
+                    <input type="text" id="nombreCompleto" name="nombreCompleto" required>
+                    <div id="nombreError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="rut">Rut*</label>
+                    <input type="text" id="rut" name="rut" placeholder="12345678-9" required>
+                    <div id="rutError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                    <div class="fecha-group">
+                        <input type="text" id="dia" placeholder="dd" maxlength="2">
+                        <span class="fecha-separator">/</span>
+                        <input type="text" id="mes" placeholder="MM" maxlength="2">
+                        <span class="fecha-separator">/</span>
+                        <input type="text" id="anio" placeholder="yyyy" maxlength="4">
+                    </div>
+                    <div id="fechaError" class="error"></div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="cv">Curriculum Vitae</label>
+                    <input type="file" id="cv" name="cv" accept=".pdf,.docx">
+                    <div id="cvError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email*</label>
+                    <input type="email" id="email" name="email" required>
+                    <div id="emailError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="genero">Género</label>
+                    <select id="genero" name="genero">
+                        <option value="">Seleccionar</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="femenino">Femenino</option>
+                        <option value="otro">Otro</option>
+                        <option value="prefiero-no-decir">Prefiero no decir</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Contraseña*</label>
+                    <input type="password" id="password" name="password" required>
+                    <div id="passwordError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Repetir Contraseña*</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    <div id="confirmPasswordError" class="error"></div>
+                </div>
+                
+                <div class="form-group"></div>
+            </div>
+            
+            <div class="button-group">
+                <button type="button" id="cancelarBtn">Cancelar</button>
+                <button type="button" id="guardarBtn">Guardar</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('registroForm');
+        const cancelarBtn = document.getElementById('cancelarBtn');
+        const guardarBtn = document.getElementById('guardarBtn');
+
+        function validarRUT(rut) {
+            if (!rut) return false;
+            
+            const rutLimpio = rut.replace(/\./g, '').replace(/-/g, '');
+            if (rutLimpio.length < 2) return false;
+            
+            const cuerpo = rutLimpio.slice(0, -1);
+            const dv = rutLimpio.slice(-1).toLowerCase();
+            
+            let suma = 0;
+            let multiplicador = 2;
+            
+            for (let i = cuerpo.length - 1; i >= 0; i--) {
+                suma += parseInt(cuerpo.charAt(i)) * multiplicador;
+                multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
+            }
+            
+            const dvEsperado = 11 - (suma % 11);
+            const dvCalculado = dvEsperado === 11 ? '0' : dvEsperado === 10 ? 'k' : dvEsperado.toString();
+            
+            return dv === dvCalculado;
+        }
+
+        function validarFecha(dia, mes, anio) {
+            if (!dia && !mes && !anio) return true;
+            
+            if (!dia || !mes || !anio) return false;
+            
+            const diaNum = parseInt(dia);
+            const mesNum = parseInt(mes);
+            const anioNum = parseInt(anio);
+            
+            if (isNaN(diaNum)) return false;
+            if (isNaN(mesNum)) return false;
+            if (isNaN(anioNum)) return false;
+            
+            if (mesNum < 1 || mesNum > 12) return false;
+            
+            const ultimoDia = new Date(anioNum, mesNum, 0).getDate();
+            if (diaNum < 1 || diaNum > ultimoDia) return false;
+            
+            return true;
+        }
+
+        function validarPassword(password) {
+            if (password.length < 6 || password.length > 12) return false;
+            
+            if (!/[A-Z]/.test(password)) return false;
+            
+            if (!/[a-z]/.test(password)) return false;
+            
+            if (!/\d/.test(password)) return false;
+            
+            return true;
+        }
+
+        function mostrarError(elemento, mensaje) {
+            const errorElement = document.getElementById(elemento + 'Error');
+            if (errorElement) {
+                errorElement.textContent = mensaje;
+                errorElement.style.display = 'block';
+            }
+            
+            if (elemento === 'fecha') {
+                const diaInput = document.getElementById('dia');
+                const mesInput = document.getElementById('mes');
+                const anioInput = document.getElementById('anio');
+                
+                if (diaInput) diaInput.classList.add('input-error');
+                if (mesInput) mesInput.classList.add('input-error');
+                if (anioInput) anioInput.classList.add('input-error');
+            } else {
+                const inputElement = document.getElementById(elemento);
+                if (inputElement) inputElement.classList.add('input-error');
+            }
+        }
+
+        function limpiarError(elemento) {
+            const errorElement = document.getElementById(elemento + 'Error');
+            if (errorElement) {
+                errorElement.textContent = '';
+                errorElement.style.display = 'none';
+            }
+            
+            if (elemento === 'fecha') {
+                const diaInput = document.getElementById('dia');
+                const mesInput = document.getElementById('mes');
+                const anioInput = document.getElementById('anio');
+                
+                if (diaInput) diaInput.classList.remove('input-error');
+                if (mesInput) mesInput.classList.remove('input-error');
+                if (anioInput) anioInput.classList.remove('input-error');
+            } else {
+                const inputElement = document.getElementById(elemento);
+                if (inputElement) inputElement.classList.remove('input-error');
+            }
+        }
+
+        function validarFormulario() {
+            let valido = true;
+
+            const nombre = document.getElementById('nombreCompleto').value.trim();
+            if (!nombre) {
+                mostrarError('nombreCompleto', 'El nombre completo es obligatorio');
+                valido = false;
+            } else {
+                limpiarError('nombreCompleto');
+            }
+
+            const rut = document.getElementById('rut').value.trim();
+            if (!rut) {
+                mostrarError('rut', 'El RUT es obligatorio');
+                valido = false;
+            } else if (!validarRUT(rut)) {
+                mostrarError('rut', 'RUT inválido');
+                valido = false;
+            } else {
+                limpiarError('rut');
+            }
+
+            const dia = document.getElementById('dia').value.trim();
+            const mes = document.getElementById('mes').value.trim();
+            const anio = document.getElementById('anio').value.trim();
+            
+            if (!validarFecha(dia, mes, anio)) {
+                mostrarError('fecha', 'Formato de fecha inválido (dd/MM/yyyy)');
+                valido = false;
+            } else {
+                limpiarError('fecha');
+            }
+
+             const archivoInput = document.getElementById('cv');
+            if (archivoInput.files.length === 0) {
+                mostrarError('cv', 'El Curriculum Vitae es obligatorio');
+                valido = false;
+            } else {
+                const archivo = archivoInput.files[0];
+                const extension = archivo.name.split('.').pop().toLowerCase();
+                if (extension !== 'pdf' && extension !== 'docx') {
+                    mostrarError('cv', 'Solo se permiten archivos PDF y DOCX');
+                    valido = false;
+                } else {
+                    limpiarError('cv');
+                }
+            }
+
+            const email = document.getElementById('email').value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email) {
+                mostrarError('email', 'El email es obligatorio');
+                valido = false;
+            } else if (!emailRegex.test(email)) {
+                mostrarError('email', 'Formato de email inválido');
+                valido = false;
+            } else {
+                limpiarError('email');
+            }
+
+            const password = document.getElementById('password').value;
+            if (!password) {
+                mostrarError('password', 'La contraseña es obligatoria');
+                valido = false;
+            } else if (!validarPassword(password)) {
+                mostrarError('password', 'Debe tener 1 mayúscula, 1 minúscula, 1 número y 6-12 caracteres');
+                valido = false;
+            } else {
+                limpiarError('password');
+            }
+
+            
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (!confirmPassword) {
+                mostrarError('confirmPassword', 'Debe repetir la contraseña');
+                valido = false;
+            } else if (password !== confirmPassword) {
+                mostrarError('confirmPassword', 'Las contraseñas no coinciden');
+                valido = false;
+            } else {
+                limpiarError('confirmPassword');
+            }
+
+            return valido;
+        }
+
+        guardarBtn.addEventListener('click', function() {
+            if (validarFormulario()) {
+                alert('¡Formulario enviado correctamente!\n\nLos datos han sido validados y están listos para ser enviados al servidor.');
+            }
+        });
+
+        cancelarBtn.addEventListener('click', function() {
+            form.reset();
+            document.querySelectorAll('.error').forEach(error => {
+                error.style.display = 'none';
+            });
+            document.querySelectorAll('.input-error').forEach(input => {
+                input.classList.remove('input-error');
+            });
+        });
+
+        document.getElementById('rut').addEventListener('blur', function() {
+            const rut = this.value.trim();
+            if (rut && !validarRUT(rut)) {
+                mostrarError('rut', 'RUT inválido');
+            } else {
+                limpiarError('rut');
+            }
+        });
+
+        document.getElementById('password').addEventListener('blur', function() {
+            const password = this.value;
+            if (password && !validarPassword(password)) {
+                mostrarError('password', 'Debe tener 1 mayúscula, 1 minúscula, 1 número y 6-12 caracteres');
+            } else {
+                limpiarError('password');
+            }
+        });
+
+        document.getElementById('confirmPassword').addEventListener('blur', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            if (password && confirmPassword && password !== confirmPassword) {
+                mostrarError('confirmPassword', 'Las contraseñas no coinciden');
+            } else {
+                limpiarError('confirmPassword');
+            }
+        });
+    </script>
+</body>
+</html>
